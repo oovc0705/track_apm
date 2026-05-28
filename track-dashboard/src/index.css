@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color-scheme: dark;
+  color: #c8ccd4;
+  background: #0F111A;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: #0F111A;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}

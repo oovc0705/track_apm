@@ -1,0 +1,442 @@
+/* ============================================
+   Trace Detail — Dark Mode Hacker Style
+   ============================================ */
+
+.trace-detail {
+  background: #0F111A;
+  min-height: 100vh;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, Consolas, 'Courier New', monospace;
+  color: #c8ccd4;
+  padding: 24px 32px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle grid background */
+.trace-detail::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.trace-detail > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Header ---------- */
+
+.trace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+  margin-bottom: 8px;
+}
+
+.trace-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trace-icon {
+  font-size: 22px;
+  color: #00d4ff;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.7; filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.3)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.7)); }
+}
+
+.trace-title-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e4e8f0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.trace-id-tag {
+  font-family: inherit !important;
+  font-size: 12px !important;
+  border: 1px solid rgba(0, 212, 255, 0.4) !important;
+  background: rgba(0, 212, 255, 0.1) !important;
+  color: #00d4ff !important;
+  border-radius: 4px !important;
+  margin: 0;
+}
+
+.trace-header-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.stat-item strong {
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+/* ---------- Timeline Ruler ---------- */
+
+.trace-timeline-ruler {
+  display: flex;
+  align-items: center;
+  padding: 12px 0 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ruler-tree-label {
+  flex: 0 0 420px;
+  font-size: 11px;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding-left: 8px;
+}
+
+.ruler-bar-area {
+  flex: 1;
+  position: relative;
+  height: 28px;
+}
+
+.ruler-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ruler-tick-line {
+  width: 1px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-bottom: 4px;
+}
+
+.ruler-tick-label {
+  font-size: 10px;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+/* ---------- Span Rows ---------- */
+
+.trace-spans {
+  margin-top: 4px;
+}
+
+.span-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  min-height: 40px;
+  transition: background 0.15s ease;
+  animation: row-slide-in 0.3s ease both;
+  cursor: default;
+}
+
+@keyframes row-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.span-row:hover {
+  background: rgba(0, 212, 255, 0.04);
+}
+
+/* -- Left: Tree cell -- */
+
+.span-tree-cell {
+  flex: 0 0 420px;
+  min-width: 0;
+}
+
+.span-tree-content {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Tree connectors */
+.tree-connector-vertical {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.tree-connector-horizontal {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.tree-toggle {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  flex-shrink: 0;
+}
+
+.span-label {
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.span-service {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.span-operation {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -- Right: Gantt bar cell -- */
+
+.span-bar-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 16px;
+  min-width: 0;
+}
+
+.span-bar-track {
+  flex: 1;
+  position: relative;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.span-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  background: var(--bar-color);
+  opacity: 0.75;
+  border-radius: 3px;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+  min-width: 3px;
+}
+
+.span-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+.span-row:hover .span-bar {
+  opacity: 1;
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--bar-color) 40%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.span-bar-label {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  padding: 0 6px;
+  line-height: 18px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.span-duration-label {
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* ---------- Tooltip ---------- */
+
+.span-tooltip {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 4px 0;
+}
+
+.span-tooltip strong {
+  color: #e4e8f0;
+}
+
+/* ---------- Legend ---------- */
+
+.trace-legend {
+  display: flex;
+  gap: 20px;
+  padding: 20px 0 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.legend-name {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ---------- Search bar ---------- */
+
+.trace-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+}
+
+.trace-search .ant-input-affix-wrapper,
+.trace-search .ant-input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e4e8f0 !important;
+  font-family: inherit !important;
+}
+
+.trace-search .ant-input-affix-wrapper:focus,
+.trace-search .ant-input-affix-wrapper-focused,
+.trace-search .ant-input:focus {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15) !important;
+}
+
+.trace-search .ant-input-search-button {
+  background: rgba(0, 212, 255, 0.15) !important;
+  border-color: rgba(0, 212, 255, 0.3) !important;
+  color: #00d4ff !important;
+}
+
+.trace-search .ant-input-search-button:hover {
+  background: rgba(0, 212, 255, 0.25) !important;
+  border-color: #00d4ff !important;
+}
+
+.back-btn {
+  color: #6b7280 !important;
+}
+
+.back-btn:hover {
+  color: #00d4ff !important;
+}
+
+/* ---------- Loading / Empty ---------- */
+
+.trace-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.trace-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .trace-detail {
+    padding: 16px;
+  }
+  .span-tree-cell {
+    flex: 0 0 260px;
+  }
+  .ruler-tree-label {
+    flex: 0 0 260px;
+  }
+  .trace-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

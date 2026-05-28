@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lighttrack-server
+
+  # PostgreSQL 配置
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lighttrack_apm?reWriteBatchedInserts=true
+    username: apm_user
+    password: apm_password123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 50           # 10K QPS 压测：提高连接池上限
+      minimum-idle: 10
+      leak-detection-threshold: 10000 # 连接泄漏检测（10秒）
+
+  # JPA / Hibernate 配置
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none  # 分区表由 DDL 脚本管理，关闭 Hibernate 自动建表
+      show-sql: false # 日志系统本身产生大量 SQL，这里先关闭避免刷屏
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 500             # 与 collector.batch-size 对齐
+        order_inserts: true
+        order_updates: true
+
+  # Redis 配置（用于异步队列缓冲区）
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 100             # Pipeline 批量操作需要更多连接
+          max-idle: 20
+
+  # 升级点 2：启用 Tomcat 虚拟线程池
+  # Java 21 + Spring Boot 4.x 原生支持虚拟线程
+  threads:
+    virtual:
+      enabled: true
+
+# 分区表自动运维配置
+partition:
+  retention-days: 30            # 分区数据保留天数（超过后物理 DROP 整个分区，避免 DELETE 产生碎片）
+
+# Collector 消费者调优参数（10K QPS 压测优化）
+collector:
+  batch-size: 1000              # 提升单次批量消费量：500ms * (10000/3) ≈ 1667 spans/轮次
+  poll-interval-ms: 100         # 缩短轮询间隔：提升消费频率
+  virtual-thread-pool-enabled: true  # 消费者端也启用虚拟线程并发写入
+
+# 升级点 1：智能自适应采样率配置
+sampling:
+  healthy-rate: 1.0             # 压测期间设为 1.0（100% 采样），生产环境建议 0.05~0.1
+  slow-threshold-ms: 500        # 慢请求阈值（毫秒）
+
+# 升级点 3：故障主动告警引擎配置
+alert:
+  enabled: true                 # 压测期间可设为 false 关闭告警以减少开销
+  webhook-url: ""               # 告警 Webhook 地址（填入钉钉/企业微信/飞书机器人 Webhook）
+  error-rate-threshold: 0.05    # 错误率告警阈值（5%）
+  latency-spike-factor: 2.0     # 耗时突增倍数阈值
+  silence-period-seconds: 300   # 同一告警静默期（秒）
+
+# Redis 队列保护配置
+queue-protection:
+  max-queue-length: 100000      # Redis 队列最大积压长度，超过触发降级采样
+  alert-threshold: 50000        # 队列长度告警阈值

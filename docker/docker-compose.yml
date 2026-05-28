@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. 链路数据持久化数据库
+  lighttrack-db:
+    image: postgres:16
+    container_name: lighttrack-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: apm_user
+      POSTGRES_PASSWORD: apm_password123
+      POSTGRES_DB: lighttrack_apm
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  # 2. 高并发日志数据缓冲区
+  lighttrack-cache:
+    image: redis:7
+    container_name: lighttrack-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 2gb
+      --maxmemory-policy volatile-lru
+    volumes:
+      - redisdata:/data
+    restart: always
+
+volumes:
+  pgdata:
+  redisdata:
